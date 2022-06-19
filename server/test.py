@@ -1,3 +1,5 @@
+#Test server in python. Just for trying stuff
+
 import socket
 host = ''
 port = 4448
