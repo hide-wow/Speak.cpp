@@ -57,27 +57,46 @@ string color(int r, int g, int b)
 void menu()
 {
     clear();
-    cout << "\n        ( (\n       ) )\n     .........    Current user : [" << getUserName()
+    cout << "\n         ( (\n       ) )\n     .........    Current user : [" << getUserName()
         << "]\n     | " << color(234, 73, 73) << "speak" << RESET << " |]   Time         : ["
         << getTime() << "]\n" << "     \\  " << BOLD << BLINK << color(234, 73, 73) << "c++" << RESET << "  /    Version      : [1.0]\n      `-----'\n"
         << endl;
+}
+
+void sendMsg(SOCKET sock, string msg)
+{
+    auto rMsg = msg.c_str();
+    send(sock, rMsg, sizeof(rMsg), 0);
+}
+
+void handleMsg(SOCKET sock, char* buffer)
+{
+    // Client side msg part:
+    string msg;
+    int recieve;
+    cout << " " << getUserName() << ": ";
+    getline(cin, msg);
+
+    sendMsg(sock, msg);
+
+    // Recieve part
+    recieve = recv(sock, buffer, 1024, 0);
+    fprintf(stdout, "%.*s", recieve, buffer);
+    cout << endl;
 }
 
 int main()
 {
     // Print menu
     clear();
+    SetConsoleTitleA("Speak C++");
     menu();
 
     // Setup vars and ip / port
     string ip;
     int port;
-    int recieve;
-    const int bufsize = 1024;
-    char msg[bufsize];
     cout << " server ip: ";
     cin >> ip;
-    cout << "\n";
     cout << " server port: ";
     cin >> port;
     cout << endl;
@@ -100,16 +119,7 @@ int main()
 
     while (true)
     {
-        // Client side msg part:
-        cout << " " << getUserName() << ": ";
-        cin >> msg;
-
-        send(sock, msg, bufsize, 0);
-
-        // Recieve part
-        recieve = recv(sock, buffer, bufsize, 0);
-        fprintf(stdout, "%.*s", recieve, buffer);
-        cout << endl;
+        handleMsg(sock, buffer);
     }
 
     closesocket(sock);
