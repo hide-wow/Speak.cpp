@@ -2,37 +2,51 @@
 #include <string>
 #include <winsock2.h>
 #include <time.h>
+#include <stdio.h>
 using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
+// ------------------ //
+
+//* ERRORS FIX IF YOU USE THE VISUAL STUDIO COMPILER *//
+// (comment if you're using something else)
+
+// #define _CRT_SECURE_NO_WARNINGS
+// #define _WINSOCK_DEPRECATED_NO_WARNINGS
+
+#define _CRT_SECURE_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
+// ------------------ //
+
 string RESET = "\033[0m";
-string BOLD  = "\033[1m";
+string BOLD = "\033[1m";
 string BLINK = "\033[5m";
 
 string getUserName()
 {
-    char * user_name = getenv("USERNAME");
-	return string(user_name);
+    char* user_name = getenv("USERNAME");
+    return string(user_name);
 }
 
 string getTime()
 {
     time_t rawtime;
-    struct tm * timeinfo;
-    char buffer [80];
-    time (&rawtime);
-    timeinfo = localtime (&rawtime);
-    strftime (buffer,80,"%R:%S",timeinfo);
+    struct tm* timeinfo;
+    char buffer[80];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(buffer, 80, "%R:%S", timeinfo);
     return string(buffer);
 }
 
 void clear()
 {
-    #ifdef _WIN32
+#ifdef _WIN32
     system("cls");
-    #else
+#else
     system("clear");
-    #endif
+#endif
 }
 
 string color(int r, int g, int b)
@@ -44,21 +58,26 @@ void menu()
 {
     clear();
     cout << "\n        ( (\n       ) )\n     .........    Current user : [" << getUserName()
-    << "]\n     | " << color(234, 73, 73) << "speak" << RESET << " |]   Time         : [" 
-    << getTime() << "]\n" << "     \\  " << BOLD << BLINK << color(234, 73, 73) << "c++" << RESET << "  /    Version      : [1.0]\n      `-----'\n"
-    << endl;
+        << "]\n     | " << color(234, 73, 73) << "speak" << RESET << " |]   Time         : ["
+        << getTime() << "]\n" << "     \\  " << BOLD << BLINK << color(234, 73, 73) << "c++" << RESET << "  /    Version      : [1.0]\n      `-----'\n"
+        << endl;
 }
 
 int main()
 {
+    // Print menu
     clear();
     menu();
 
+    // Setup vars and ip / port
     string ip;
     int port;
+    int recieve;
+    const int bufsize = 1024;
+    char msg[bufsize];
     cout << " server ip: ";
     cin >> ip;
-    cout << endl;
+    cout << "\n";
     cout << " server port: ";
     cin >> port;
     cout << endl;
@@ -68,7 +87,7 @@ int main()
     SOCKET sock;
     SOCKADDR_IN sin;
     char buffer[1024];
-    WSAStartup(MAKEWORD(2,0), &WSAData);
+    WSAStartup(MAKEWORD(2, 0), &WSAData);
 
     // Create socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -77,12 +96,24 @@ int main()
     sin.sin_port = htons(port);
 
     // Connect & test
-    connect(sock, (SOCKADDR *)&sin, sizeof(sin));
-    recv(sock, buffer, sizeof(buffer), 0);
+    connect(sock, (SOCKADDR*)&sin, sizeof(sin));
+
+    while (true)
+    {
+        // Client side msg part:
+        cout << " " << getUserName() << ": ";
+        cin >> msg;
+
+        send(sock, msg, bufsize, 0);
+
+        // Recieve part
+        recieve = recv(sock, buffer, bufsize, 0);
+        fprintf(stdout, "%.*s", recieve, buffer);
+        cout << endl;
+    }
+
     closesocket(sock);
     WSACleanup();
-
-    cout << " server response: " << buffer << endl;
 
     return 0;
 }
