@@ -1,2 +1,2 @@
-g++ client.cpp -o test -lws2_32 -lwsock32
+g++ client.cpp -o client -lws2_32 -lwsock32
 pause
