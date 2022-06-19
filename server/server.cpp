@@ -1,3 +1,5 @@
+// Buggy, will fix later cause i'm alot lazy~
+
 #include <winsock2.h>
 #include <cstring>
 #include <iostream>
