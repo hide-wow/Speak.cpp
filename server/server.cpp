@@ -1,4 +1,5 @@
-// Buggy, will fix later cause i'm alot lazy~
+// Alot of errors and stuff i need to learn (threads lmao)
+// Will fix later cause i'm alot lazy~
 
 #include <winsock2.h>
 #include <cstring>
