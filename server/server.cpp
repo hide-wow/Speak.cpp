@@ -1,13 +1,9 @@
-// Alot of errors and stuff i need to learn (threads lmao)
-// Will fix later cause i'm alot lazy~
-
 #include <winsock2.h>
 #include <cstring>
 #include <iostream>
 #include <thread>
 #include <list>
 using namespace std;
-#pragma comment(lib, "ws2_32.lib")
 
 class Server
 {
@@ -33,7 +29,7 @@ public:
 
     void broadcast(string message)
     {
-        for (int clientIndex = 0; clientIndex == sizeof(clients)/sizeof(*clients); clientIndex++)
+        for (int clientIndex = 0; clientIndex == sizeof(clients) / sizeof(*clients); clientIndex++)
         {
             if (clients[clientIndex] != INVALID_SOCKET)
             {
@@ -49,19 +45,19 @@ public:
         SOCKET csock;
         SOCKADDR_IN sin;
         SOCKADDR_IN csin;
-        WSAStartup(MAKEWORD(2,0), &WSAData);
+        WSAStartup(MAKEWORD(2, 0), &WSAData);
         sock = socket(AF_INET, SOCK_STREAM, 0);
         sin.sin_addr.s_addr = INADDR_ANY;
         sin.sin_family = AF_INET;
         sin.sin_port = htons(23);
-        bind(sock, (SOCKADDR *)&sin, sizeof(sin));
+        bind(sock, (SOCKADDR*)&sin, sizeof(sin));
         listen(sock, 0);
-        while(1)
+        while (1)
         {
             int sinsize = sizeof(csin);
-            if((csock = accept(sock, (SOCKADDR *)&csin, &sinsize)) != INVALID_SOCKET)
+            if ((csock = accept(sock, (SOCKADDR*)&csin, &sinsize)) != INVALID_SOCKET)
             {
-                int arraySize = (sizeof(clients)/sizeof(*clients)) - 1;
+                int arraySize = (sizeof(clients) / sizeof(*clients)) - 1;
                 if (arraySize > 20)
                 {
                     string message = "Server is full";
@@ -70,8 +66,8 @@ public:
                 }
                 else
                 {
-                    clients[arraySize+1] = csock;
-                    thread client (clientHandle, csock);
+                    clients[arraySize + 1] = csock;
+                    // thread client(&clientHandle, csock); -> Fucked part
                 }
             }
         }
