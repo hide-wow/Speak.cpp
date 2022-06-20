@@ -1,10 +1,4 @@
-#include <iostream>
-#include <string>
-#include <winsock2.h>
-#include <time.h>
-#include <stdio.h>
-using namespace std;
-#pragma comment(lib, "ws2_32.lib")
+#include "funcs.h"
 
 // ------------------ //
 
@@ -19,70 +13,30 @@ using namespace std;
 
 // ------------------ //
 
-string RESET = "\033[0m";
-string BOLD = "\033[1m";
-string BLINK = "\033[5m";
-
-string getUserName()
-{
-    char* user_name = getenv("USERNAME");
-    return string(user_name);
-}
-
-string getTime()
-{
-    time_t rawtime;
-    struct tm* timeinfo;
-    char buffer[80];
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-    strftime(buffer, 80, "%R:%S", timeinfo);
-    return string(buffer);
-}
-
-void clear()
-{
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
-
-string color(int r, int g, int b)
-{
-    return "\033[38;2;" + to_string(r) + ";" + to_string(g) + ";" + to_string(b) + "m";
-}
-
-void menu()
-{
-    clear();
-    cout << "\n         ( (\n       ) )\n     .........    Current user : [" << getUserName()
-        << "]\n     | " << color(234, 73, 73) << "speak" << RESET << " |]   Time         : ["
-        << getTime() << "]\n" << "     \\  " << BOLD << BLINK << color(234, 73, 73) << "c++" << RESET << "  /    Version      : [1.0]\n      `-----'\n"
-        << endl;
-}
-
 void sendMsg(SOCKET sock, string msg)
 {
-    auto rMsg = msg.c_str();
-    send(sock, rMsg, sizeof(rMsg), 0);
+    const char* rMsg = msg.c_str();
+    send(sock, rMsg, msg.length(), 0);
 }
 
-void handleMsg(SOCKET sock, char* buffer)
+void handleMsg(SOCKET sock)
 {
-    // Client side msg part:
-    string msg;
-    int recieve;
-    cout << " " << getUserName() << ": ";
-    getline(cin, msg);
+    while (true)
+    {
+        // Client side msg part:
+        string msg;
+        char buffer[1024];
+        int recieve;
+        cout << " " << getUserName() << ": ";
+        getline(cin, msg);
 
-    sendMsg(sock, msg);
+        sendMsg(sock, msg);
 
-    // Recieve part
-    recieve = recv(sock, buffer, 1024, 0);
-    fprintf(stdout, "%.*s", recieve, buffer);
-    cout << endl;
+        // Recieve part
+        recieve = recv(sock, buffer, 1024, 0);
+        fprintf(stdout, "%.*s", recieve, buffer);
+        cout << endl;
+    }
 }
 
 int main()
@@ -105,7 +59,6 @@ int main()
     WSADATA WSAData;
     SOCKET sock;
     SOCKADDR_IN sin;
-    char buffer[1024];
     WSAStartup(MAKEWORD(2, 0), &WSAData);
 
     // Create socket
@@ -117,10 +70,7 @@ int main()
     // Connect & test
     connect(sock, (SOCKADDR*)&sin, sizeof(sin));
 
-    while (true)
-    {
-        handleMsg(sock, buffer);
-    }
+    handleMsg(sock);
 
     closesocket(sock);
     WSACleanup();
