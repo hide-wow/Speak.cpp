@@ -3,13 +3,16 @@
 #include <winsock2.h>
 #include <time.h>
 #include <stdio.h>
+#include <thread>
 using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
+// Color const
 string RESET = "\033[0m";
 string BOLD = "\033[1m";
 string BLINK = "\033[5m";
 
+// Functions
 string getUserName()
 {
     char* user_name = getenv("USERNAME");
@@ -49,3 +52,13 @@ void menu()
         << getTime() << "]\n" << "     \\  " << BOLD << BLINK << color(234, 73, 73) << "c++" << RESET << "  /    Version      : [1.0]\n      `-----'\n"
         << endl;
 }
+
+void consoleTitle(string title)
+{
+    string titleCMD = "title ";
+    titleCMD += title;
+    system(titleCMD.c_str());
+}
+
+// Values
+string username = getUserName();
