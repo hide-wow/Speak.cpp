@@ -2,40 +2,43 @@
 
 // ------------------ //
 
-//* ERRORS FIX IF YOU USE THE VISUAL STUDIO COMPILER *//
+// ERRORS FIX IF YOU USE THE VISUAL STUDIO COMPILER
 // (comment if you're using something else)
 
 // #define _CRT_SECURE_NO_WARNINGS
 // #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 // ------------------ //
 
 void sendMsg(SOCKET sock, string msg)
 {
-    const char* rMsg = msg.c_str();
-    send(sock, rMsg, msg.length(), 0);
+    const char* charMsg = msg.c_str();
+    send(sock, msg.c_str(), strlen(charMsg), 0);
+}
+
+void handleRecv(SOCKET sock)
+{
+    while (true)
+    {
+        int recieve = 0;
+        char buffer[1024] = "";
+
+        recieve = recv(sock, buffer, 1024, 0);
+
+        fprintf(stdout, "%.*s", recieve, buffer);
+        cout << endl;
+    }
 }
 
 void handleMsg(SOCKET sock)
 {
     while (true)
     {
-        // Client side msg part:
-        string msg;
-        char buffer[1024];
-        int recieve;
-        cout << " " << getUserName() << ": ";
+        string msg = "";
+        cout << " " << username << ": ";
         getline(cin, msg);
 
         sendMsg(sock, msg);
-
-        // Recieve part
-        recieve = recv(sock, buffer, 1024, 0);
-        fprintf(stdout, "%.*s", recieve, buffer);
-        cout << endl;
     }
 }
 
@@ -43,7 +46,10 @@ int main()
 {
     // Print menu
     clear();
-    SetConsoleTitleA("Speak C++");
+    string title = "Speak C++         [User : ";
+    title += username;
+    title += "]";
+    consoleTitle(title);
     menu();
 
     // Setup vars and ip / port
@@ -70,10 +76,13 @@ int main()
     // Connect & test
     connect(sock, (SOCKADDR*)&sin, sizeof(sin));
 
-    handleMsg(sock);
+    // Init client
+    send(sock, username.c_str(), username.length(), 0);
 
-    closesocket(sock);
-    WSACleanup();
+    thread msghandle  (handleMsg, sock);
+    thread recvhandle (handleRecv, sock);
+    msghandle.join();
+    recvhandle.join();
 
     return 0;
 }
