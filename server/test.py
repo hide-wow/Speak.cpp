@@ -1,3 +1,10 @@
+"""
+
+IF YOU WANT THE REAL SERVER, SEE server.cpp FILE!
+THIS ONE WAS ONLY FOR THE STARTING.
+
+"""
+
 #Test server in python. Just for trying stuff
 
 import socket
