@@ -14,6 +14,8 @@ using namespace std;
 int clients[20];
 int numClients;
 
+string passwd = "Ce4rT__(*45D-&&(fk_-jha#-$#@)(";
+
 void broadcast(SOCKET sock, string message)
 {
     for (int client = 0; client == numClients; client++)
@@ -26,9 +28,20 @@ void handle(SOCKET sock)
 {
     while (1)
     {
-        char clientMsg[1024];
-        recv(sock, clientMsg, 1024, 0);
-        broadcast(sock, string(clientMsg));
+        int recieve = 0;
+        char clientMsg[1024] = "";
+
+        recieve = recv(sock, clientMsg, 1024, 0);
+        fprintf(stdout, "%.*s", recieve, clientMsg);
+
+        if (clientMsg == "EXIT")
+        {
+            break;
+        }
+        else
+        {
+            broadcast(sock, string(clientMsg));
+        }
     }
 }
 
@@ -68,11 +81,24 @@ int main()
         int sinsize = sizeof(csin);
         if ((csock = accept(sock, (SOCKADDR*)&csin, &sinsize)) != INVALID_SOCKET)
         {
-            numClients++;
-            cout << numClients << endl;
-            clients[numClients] = csock;
-            thread client(handle, csock);
-            client.join();
+            char passwdClient[1024] = "";
+            recv(sock, passwdClient, 1024, 0);
+
+            if (passwdClient == passwd)
+            {
+                send(csock, "CBON", 4, 0);
+                numClients++;
+                cout << numClients << endl;
+                clients[numClients] = csock;
+                thread client(handle, csock);
+                client.join();
+            }
+
+            else
+            {
+                send(csock, "NOPE", 4, 0);
+                closesocket(csock);
+            }
         }
     }
     return 0;
