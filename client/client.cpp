@@ -1,5 +1,3 @@
-#include "funcs.h"
-
 // ------------------ //
 
 // ERRORS FIX IF YOU USE THE VISUAL STUDIO COMPILER
@@ -9,6 +7,8 @@
 // #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 // ------------------ //
+
+#include "funcs.h"
 
 void sendMsg(SOCKET sock, string msg)
 {
@@ -77,12 +77,29 @@ int main()
     connect(sock, (SOCKADDR*)&sin, sizeof(sin));
 
     // Init client
-    send(sock, username.c_str(), username.length(), 0);
+    const char* passwd = "Ce4rT__(*45D-&&(fk_-jha#-$#@)(";
+    char passwdResponse[1024];
 
-    thread msghandle  (handleMsg, sock);
-    thread recvhandle (handleRecv, sock);
-    msghandle.join();
-    recvhandle.join();
+    send(sock, passwd, sizeof(passwd), 0);
+    recv(sock, passwdResponse, sizeof(1024), 0);
+
+    if (passwdResponse == "NOPE")
+    {
+        cout << "wesh ca bug la non ?" << endl;
+    }
+    else if (passwdResponse == "CBON")
+    {
+        send(sock, username.c_str(), username.length(), 0);
+
+        thread msghandle(handleMsg, sock);
+        thread recvhandle(handleRecv, sock);
+        msghandle.join();
+        recvhandle.join();
+    }
+    else
+    {
+        cout << passwdResponse;
+    }
 
     return 0;
 }
